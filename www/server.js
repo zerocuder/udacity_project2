@@ -37,18 +37,19 @@ const util_1 = require("./util/util");
     //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
     /**************************************************************************** */
     app.get("/filteredimage", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        let img_url = req.query.image_url;
-        if (img_url) {
-            yield (0, util_1.filterImageFromURL)(img_url).then(function (filteredpath) {
-                res.sendFile(filteredpath, () => {
-                    (0, util_1.deleteLocalFiles)([filteredpath]);
-                });
-            }).catch(function (err) {
-                res.status(400).send("The image can not filterd");
+        try {
+            const img_url = req.query.image_url;
+            if (!img_url) {
+                return res.status(400).send("Please input the image URL");
+            }
+            const filtered_path = yield (0, util_1.filterImageFromURL)(img_url);
+            res.sendFile(filtered_path, () => {
+                (0, util_1.deleteLocalFiles)([filtered_path]);
             });
         }
-        else {
-            res.status(400).send("Please give the connect image url");
+        catch (error) {
+            console.error("Error processing request:", error);
+            res.status(400).send("The image cannot be filtered");
         }
     }));
     //! END @TODO1
